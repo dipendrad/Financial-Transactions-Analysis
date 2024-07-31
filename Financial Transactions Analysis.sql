@@ -116,6 +116,134 @@ GROUP BY day
 ORDER BY day;
 
 
+-- Daily Transaction Averages
+SELECT 
+    DATE_FORMAT(datetime, '%Y-%m-%d') AS day, 
+    AVG(amount) AS avg_amount
+FROM transactions
+GROUP BY day
+ORDER BY day;
+
+-- Peak Transaction Hours
+SELECT 
+    HOUR(datetime) AS hour, 
+    COUNT(*) AS num_transactions, 
+    SUM(amount) AS total_amount
+FROM transactions
+GROUP BY hour
+ORDER BY num_transactions DESC, total_amount DESC;
+
+-- Largest Transactions
+SELECT 
+    * 
+FROM transactions
+ORDER BY ABS(amount) DESC
+LIMIT 10;
+
+-- Smallest Transactions
+SELECT 
+    * 
+FROM transactions
+ORDER BY ABS(amount)
+LIMIT 10;
+
+-- Monthly Transaction Averages
+SELECT 
+    DATE_FORMAT(datetime, '%Y-%m') AS month, 
+    AVG(amount) AS avg_amount
+FROM transactions
+GROUP BY month
+ORDER BY month;
+
+-- Average Transaction Amount by Category
+SELECT 
+    category, 
+    AVG(amount) AS avg_amount
+FROM transactions
+GROUP BY category
+ORDER BY avg_amount DESC;
+
+-- Transaction Distribution by Amount Range
+SELECT 
+    CASE
+        WHEN amount < 100 THEN 'Below 100'
+        WHEN amount BETWEEN 100 AND 499.99 THEN '100-499.99'
+        WHEN amount BETWEEN 500 AND 999.99 THEN '500-999.99'
+        ELSE '1000 and above'
+    END AS amount_range,
+    COUNT(*) AS num_transactions
+FROM transactions
+GROUP BY amount_range
+ORDER BY amount_range;
+
+-- Transaction Count by Weekday
+SELECT 
+    DAYNAME(datetime) AS weekday, 
+    COUNT(*) AS num_transactions
+FROM transactions
+GROUP BY weekday
+ORDER BY FIELD(weekday, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+
+-- Total Transaction Amount by Weekday
+SELECT 
+    DAYNAME(datetime) AS weekday, 
+    SUM(amount) AS total_amount
+FROM transactions
+GROUP BY weekday
+ORDER BY FIELD(weekday, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+
+-- Average Transaction Amount by Weekday
+SELECT 
+    DAYNAME(datetime) AS weekday, 
+    AVG(amount) AS avg_amount
+FROM transactions
+GROUP BY weekday
+ORDER BY FIELD(weekday, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+
+-- Transactions by Account ID
+SELECT 
+    account_id, 
+    COUNT(*) AS num_transactions
+FROM transactions
+GROUP BY account_id
+ORDER BY num_transactions DESC;
+
+-- Total Amount by Account ID
+SELECT 
+    account_id, 
+    SUM(amount) AS total_amount
+FROM transactions
+GROUP BY account_id
+ORDER BY total_amount DESC;
+
+-- Transactions by Date and Time
+SELECT 
+    DATE_FORMAT(datetime, '%Y-%m-%d %H:%i:%s') AS transaction_datetime, 
+    COUNT(*) AS num_transactions, 
+    SUM(amount) AS total_amount
+FROM transactions
+GROUP BY transaction_datetime
+ORDER BY transaction_datetime;
+
+-- Summary Statistics
+SELECT 
+    MIN(amount) AS min_amount,
+    MAX(amount) AS max_amount,
+    AVG(amount) AS avg_amount,
+    SUM(amount) AS total_amount,
+    COUNT(*) AS num_transactions
+FROM transactions;
+
+-- Month-over-Month Growth Rate
+SELECT 
+    DATE_FORMAT(datetime, '%Y-%m') AS month, 
+    SUM(amount) AS total_amount,
+    LAG(SUM(amount)) OVER (ORDER BY DATE_FORMAT(datetime, '%Y-%m')) AS previous_month_amount,
+    (SUM(amount) - LAG(SUM(amount)) OVER (ORDER BY DATE_FORMAT(datetime, '%Y-%m'))) / LAG(SUM(amount)) OVER (ORDER BY DATE_FORMAT(datetime, '%Y-%m')) * 100 AS month_over_month_growth
+FROM transactions
+GROUP BY month
+ORDER BY month;
+
 
 
 
